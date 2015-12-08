@@ -1,32 +1,26 @@
 #include <node.h>
 #include <unistd.h>
-#include <v8.h>
+#include <nan.h>
 
-using namespace v8;
+NAN_METHOD(Fork);
+NAN_METHOD(Daemon);
+NAN_METHOD(Getpid);
 
-Handle<Value> Fork(const Arguments& args) {
-  HandleScope scope;
-  return scope.Close(Integer::New(fork()));
+NAN_METHOD(Fork) {
+  info.GetReturnValue().Set(fork());
 }
 
-Handle<Value> Daemon(const Arguments& args) {
-  HandleScope scope;
-  return scope.Close(Integer::New(daemon(args[0]->IsTrue() ? 0 : -1,
-                                         args[1]->IsTrue() ? 0 : -1)));
+NAN_METHOD(Daemon) { 
+  info.GetReturnValue().Set(daemon(info[0]->IsTrue() ? 0 : -1, info[1]->IsTrue() ? 0 : -1)); 
 }
 
-Handle<Value> Getpid(const Arguments& args) {
-  HandleScope scope;
-  return scope.Close(Integer::New(getpid()));
+NAN_METHOD(Getpid) {
+  info.GetReturnValue().Set(getpid());
 }
 
-void init(Handle<Object> exports) {
-  exports->Set(String::NewSymbol("fork"),
-    FunctionTemplate::New(Fork)->GetFunction());
-  exports->Set(String::NewSymbol("daemon"),
-    FunctionTemplate::New(Daemon)->GetFunction());
-  exports->Set(String::NewSymbol("getpid"),
-    FunctionTemplate::New(Getpid)->GetFunction());
+NAN_MODULE_INIT(Init) {
+  NAN_EXPORT(target, Fork);
+  NAN_EXPORT(target, Daemon);
+  NAN_EXPORT(target, Getpid);
 }
 
-NODE_MODULE(posix, init)
